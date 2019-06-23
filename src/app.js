@@ -3,6 +3,9 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
+//example of object destructuring
+const {accounts, users, writeJSON} = require('./data');
+
 //number 3, review what set function does
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -12,13 +15,7 @@ app.use(express.static(path.join(__dirname,'public')));
 
 //module 3 number 1 what does this mean
 app.use(express.urlencoded({extended:true}));
-//module2 number 1, review this
-//pathanme and encoding are sufficient. callback is not required
-const accountData = fs.readFileSync("src/json/accounts.json","utf8");
-const accounts = JSON.parse(accountData);
 
-const userData = fs.readFileSync("src/json/users.json","utf8");
-const users = JSON.parse(userData);
 //number 7 review what app.get does
 app.get('/', (req, res)=> {
   res.render('index', {title:'Account Summary', accounts:accounts});
@@ -45,8 +42,7 @@ app.post('/transfer', (req, res)=>{
   req.body.amount;
   accounts[req.body.to].balance =parseInt(accounts[req.body.to].balance)+
   parseInt(req.body.amount,10);
-  const accountsJSON = JSON.stringify(accounts, null,4);
-  fs.writeFileSync(path.join(__dirname,'json/accounts.json'), accountsJSON, 'utf8');
+  writeJSON();
   res.render('transfer', {message: 'Transfer Completed'});
 });
 //more module3 information to understand
@@ -54,9 +50,7 @@ app.get('/payment', (req,res)=> res.render('payment', {account:accounts.credit})
 app.post('/payment', (req,res)=>{
   accounts.credit.balance-=req.body.amount;
   accounts.credit.available+=parseInt(req.body.amount, 10);
-  const accountsJSON = JSON.stringify(accounts, null, 4);
-  fs.writeFileSync(path.join(__dirname,'json','accounts.json'), accountsJSON,
-  'utf8');
+  writeJSON();
   res.render('payment', {message:'Payment Successful', account:accounts.credit});
 });
 
